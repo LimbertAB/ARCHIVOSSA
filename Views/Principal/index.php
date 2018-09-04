@@ -55,19 +55,45 @@
                <?php } ?>
           </tbody>
      </table>
-     <center>
-          <a onclick="altaAjax()"><button title="Backup de la Base de Datos" style="margin:20px;padding:5px;" class="btn btn-success btn-lg">Copia de Seguridad <i class="fa fa-hdd-o" ></i></button></a>
-     </center>
+     <center><h3 style="margin-top:10px;color: #1cd2dc;font-weight: 700;">MODIFICAR PERSONA</h3></center>
+     <form autocomplete="off" style="margin:10px 40px 10px 40px">
+          <div class="form-group has-feedback has-success fila1_u" style="margin-bottom:20px">
+            <label style="color:#3fd2e0;font-weight:400;font-family:arial;font-size:.8em;margin-bottom:2px">NOMBRES</label>
+            <input type="text" id="inputnombre_u" class="form-control" validate="false" toggle=".fila1_u" value="<?php echo $resultado['profile']['nombre'] ?>" placeholder="<?php echo $resultado['profile']['nombre'] ?>">
+            <span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+          </div>
+          <div class="form-group has-feedback has-success fila2_u" style="margin-bottom:20px">
+            <label style="color:#3fd2e0;font-weight:400;font-family:arial;font-size:.8em;margin-bottom:2px">APELLIDOS</label>
+            <input type="text"  id="inputapellido_u" class="form-control" validate="false" toggle=".fila2_u" value="<?php echo $resultado['profile']['apellido'] ?>" placeholder="<?php echo $resultado['profile']['apellido'] ?>">
+            <span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+          </div>
+          <div class="form-group has-feedback has-success fila3_u" style="margin-bottom:20px">
+            <label style="color:#3fd2e0;font-weight:400;font-family:arial;font-size:.8em;margin-bottom:2px">CÓDIGO DE PERSONA</label>
+            <input type="text"  id="inputcodigo_u" class="form-control" validate="false" toggle=".fila3_u" value="<?php echo $resultado['profile']['codigo'] ?>" placeholder="<?php echo $resultado['profile']['codigo'] ?>">
+            <span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+            <em style="color:#cf6666;display:none" id="error_update_codigo">El Código ya esta en uso!</em>
+          </div>
+          <div class="form-group has-feedback has-success fila4_u" style="margin-bottom:20px">
+            <label style="color:#3fd2e0;font-weight:400;font-family:arial;font-size:.8em;margin-bottom:2px">CARNET DE IDENTIDAD</label>
+            <input type="text"  id="inputci_u" class="form-control" validate="false" toggle=".fila4_u" value="<?php echo $resultado['profile']['ci'] ?>" placeholder="<?php echo $resultado['profile']['ci'] ?>">
+            <span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+            <em style="color:#cf6666;display:none" id="error_update_ci">El Numero de CI ya esta en uso!</em>
+          </div>
+          <div class="form-group has-feedback has-error fila1_u">
+          <label style="color:#3fd2e0;font-weight:400;font-family:arial;font-size:.8em;margin-bottom:2px">NUEVA CONTRASEÑA</label>
+               <input type="password" autocomplete="false" autocorrect="off" class="form-control" id="inputpassword_u" validate="false" name="password" placeholder="Minimo 5 caracteres" toggle=".fila1_u">
+               <span toggle="#inputpassword_u" id="togglepassword_u" class="fa fa-fw fa-eye field-icon"></span>
+          </div>
+          <center>
+               <button class="btn btn-success" style="margin:10px 0 18px 0px;width:100%" id="buttonupdate" type="button" disabled>Guardar</button>
+          </center>
+     </form>
+     <?php if($session['tipo'] == 0){?>
+          <center>
+               <a onclick="altaAjax()"><button title="Backup de la Base de Datos" style="margin:20px;padding:5px;" class="btn btn-info btn-lg">Copia de Seguridad <i class="fa fa-hdd-o" ></i></button></a>
+          </center>
+     <?php } ?>
 </div>
-<section>
-     <?php
-          if (isset($_SESSION['User'])) {
-               foreach ($_SESSION['User'] as $key => $value) {
-                    echo $key ."=>".$value."<br>";
-               }
-          }
-     ?>
-</section>
 <?php include 'modalverpersonal.php';?>
 <script>
     $(document).ready(function(){
@@ -110,7 +136,6 @@
               type: 'get',
               success:function(obj){
                    var data = JSON.parse(obj);
-                   console.log(data);
                    $('.unombre h5').text(data.nombre+" "+data.apellido);$('.uci').text(data.ci);$('.unombre p').text("CODIGO:"+data.id);
                    $('.uaccess').text(data.access==1 ? ("Con Acceso al Sistema"):("Sin Acceso al Sistema"));
                    $('.uciudad').text(data.ciudad=="lapaz" ? ("La Paz"):("Potosí"));

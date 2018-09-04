@@ -1,6 +1,8 @@
 <?php if($session['tipo'] == 0){?>
 	<div class="fab" data-target="#newusuarioModal" data-toggle="modal"> + </div>
-<?php } ?>
+<?php }else{?>
+	<script>window.location.href = "/Principal";</script>
+<?php }?>
 <div class="row">
 	<h2 class="text-center" style="margin:20px 0 1px 0;font-weight:300">LISTA DE USUARIOS</h2>
 </div>

@@ -25,7 +25,7 @@
                     JOIN persona as p ON u.id_persona = p.id WHERE u.estado = 1";
                $bajas="SELECT p.nombre,p.id as id_persona,p.ci,p.apellido,u.id FROM usuario as u
                     JOIN persona as p ON u.id_persona = p.id WHERE u.estado = 0";
-               $persona="SELECT nombre,id,apellido,ci FROM persona WHERE access = 0 AND ciudad='potosi'";
+               $persona="SELECT nombre,id,apellido,ci FROM persona WHERE access = 0";
                $result=["usuarios"=> parent::consultaRetorno($user),
                          "bajas"=> parent::consultaRetorno($bajas),
                          "personas"=> parent::consultaRetorno($persona),

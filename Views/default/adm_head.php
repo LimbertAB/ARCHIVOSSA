@@ -115,12 +115,14 @@
 								<i class="fa fa-group"></i> <span>Personal La Paz</span>
 							</a>
 						</li>
-						<li>
-							<a href="/Usuario" style="cursor:pointer">
-								<i class="fa fa-user"></i> <span>Usuarios</span>
-								<small class="pull-right glyphicon glyphicon-ok" style="color:#5ac65b"></small>
-							</a>
-						</li>
+						<?php if($session['tipo'] == 0){?>
+							<li>
+								<a href="/Usuario" style="cursor:pointer">
+									<i class="fa fa-user"></i> <span>Usuarios</span>
+									<small class="pull-right glyphicon glyphicon-ok" style="color:#5ac65b"></small>
+								</a>
+							</li>
+						<?php }?>
 						<li>
 							<a href="/Usuario/destroySession" style="cursor:pointer">
 								<i class="fa fa-sign-out"></i> <span>Salir</span>

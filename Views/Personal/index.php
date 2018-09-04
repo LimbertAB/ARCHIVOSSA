@@ -34,7 +34,11 @@
 									<td style="text-align:left;padding-left:9px"><h5><?php echo  ucwords(strtolower($resultado["personal"][$i]['nombre']));?></h5></td>
 									<td style="text-align:left;padding-left:9px"><h5><?php echo  ucwords(strtolower($resultado["personal"][$i]['apellido']));?></h5></td>
 									<td><h5><?php echo $resultado["personal"][$i]['ci'];?></h5></td>
-									<td><h5 style="color:#e00909"><?php echo ($resultado["personal"][$i]['caja']) == "" ? "Sin Caja" : $resultado["personal"][$i]['caja']." ".$resultado["personal"][$i]['id_caja'];?></h5></td>
+									<?php if($resultado["personal"][$i]['caja'] == ""){?>
+										<td><h5 style="color:#e00909">Sin Caja</h5></td>
+									<?php }else{?>
+										<td><a  style="cursor:pointer" data-target="#vercajaModal" data-toggle="modal" onclick="vercajaAjax(<?php echo $resultado["personal"][$i]['id_caja'];?>,'caja')"> <?php echo $resultado["personal"][$i]['caja']." ".$resultado["personal"][$i]['id_caja'];?></a></td>
+									<?php } ?>
 									<td>
 										<?php if($session['tipo'] == 0){?>
 											<a data-target="#updatepersonalModal" data-toggle="modal" onclick="updateAjax(<?php echo $resultado["personal"][$i]['id'];?>)"><button title="editar usuario" type="button" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></button></a>
@@ -79,7 +83,11 @@
 									<td style="text-align:left;padding-left:9px"><h5><?php echo  ucwords(strtolower($resultado["bajas"][$i]['nombre']));?></h5></td>
 									<td style="text-align:left;padding-left:9px"><h5><?php echo  ucwords(strtolower($resultado["bajas"][$i]['apellido']));?></h5></td>
 									<td><h5><?php echo $resultado["bajas"][$i]['ci'];?></h5></td>
-									<td><h5> <?php echo $resultado["bajas"][$i]['caja']== "" ? "Sin Caja" :$resultado["bajas"][$i]['caja']." ".$resultado["bajas"][$i]['id_caja'];?></h5></td>
+									<?php if($resultado["bajas"][$i]['caja'] == ""){?>
+										<td><h5 style="color:#e00909">Sin Caja</h5></td>
+									<?php }else{?>
+										<td><a  style="cursor:pointer" data-target="#vercajaModal" data-toggle="modal" onclick="vercajaAjax(<?php echo $resultado["bajas"][$i]['id_caja'];?>,'cajaretirado')"> <?php echo $resultado["bajas"][$i]['caja']." ".$resultado["bajas"][$i]['id_caja'];?></a></td>
+									<?php } ?>
 									<td>
 										<?php if($session['tipo'] == 0){?>
 											<a data-target="#updatepersonalModal" data-toggle="modal" onclick="updateAjax(<?php echo $resultado["bajas"][$i]['id'];?>)"><button title="editar usuario" type="button" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></button></a>
@@ -109,16 +117,30 @@
 </div>
 
 <?php 	include 'modalnewpersonal.php';include 'modalverpersonal.php';
-		include 'modalupdatepersonal.php';include 'modalretirarpersonal.php';include 'modalhabilitarpersonal.php';?>
+		include 'modalupdatepersonal.php';include 'modalretirarpersonal.php';include 'modalhabilitarpersonal.php';include 'modalvercaja.php';?>
 <script>
    	var id_caja_u,id_personal_u,estado_u;
+	var id_caja_p,table_p;
     $(document).ready(function(){
 
 		$('#inputsearch').keyup(function(){$('#myTabs a[href="#todos"]').tab('show');var data=$(this).val().toLowerCase().trim();SEARCH_DATA(data,"tablepersonal","No se encontraron Coincidencias de información del PERSONAL.");});
 
 		$('#inputnombre,#inputnombre_u').keypress(function(e){not_number(e);}).keyup(function(){if($(this).val().trim().length>3){small_error($(this).attr('toggle'),true);}else{small_error($(this).attr('toggle'),false);}function_validate($(this).attr('validate'));});
 		$('#inputapellido,#inputapellido_u').keypress(function(e){not_number(e);}).keyup(function(){if($(this).val().trim().length>5){small_error($(this).attr('toggle'),true);}else{small_error($(this).attr('toggle'),false);}function_validate($(this).attr('validate'));});
-		$('#inputci,#inputci_u').keypress(function(e){yes_number(e);}).keyup(function(){if($(this).val().trim().length>6){small_error($(this).attr('toggle'),true);}else{small_error($(this).attr('toggle'),false);}function_validate($(this).attr('validate'));});
+		$('#inputci,#inputci_u').keypress(function(e){
+			carnet_press(e);
+		}).keyup(function(){
+			var valor=$(this).val().split('-') == null ? ([]) : ($(this).val().split('-'));
+			if(valor.length<3 && parseInt(valor[0])>999999 && valor[1]!=""){
+				if($(this).val().trim().length>6 && $(this).val().trim().length<12){
+					small_error($(this).attr('toggle'),true);
+				}else{
+					small_error($(this).attr('toggle'),false);
+				}
+			}else{
+				small_error($(this).attr('toggle'),false);
+			}function_validate($(this).attr('validate'));
+		});
 		$('#inputcodigo,#inputcodigo_u').keypress(function(e){yes_number(e);}).keyup(function(){if(parseInt($(this).val().trim())>0){small_error($(this).attr('toggle'),true);}else{small_error($(this).attr('toggle'),false);}function_validate($(this).attr('validate'));});
 
 		$('#btnregistrar').click(function(){$.ajax({url: '/Personal/crear',type: 'post',data:{nombre:$('#inputnombre').val(),apellido:$('#inputapellido').val(),codigo:$('#inputcodigo').val(),ci:$('#inputci').val(),id_caja:$('#selectcaja option:selected').val(),ciudad:"potosi"},
@@ -233,6 +255,29 @@
 				id_caja_u=data.id_caja;id_personal_u=data.id,estado_u=data.estado;
 			}
 		});
+	}
+	function vercajaAjax(val,table){
+		table_p=table;
+		$("#alert_empty_caja").hide();$('#tablecaja').empty();
+		$.ajax({
+			url: '/Caja/ver/exec?tabla='+table+"&id_caja="+val,
+			type: 'get',
+			success:function(obj){
+				var data = JSON.parse(obj);
+				$('.unombre h5').html(data.nombre+" "+data.id);$('.ucantidad').text("Personas: "+data.personal.length);$('.uestado').text(data.estado==1 ? ("Activo"):("Inactivo"));
+				if (data.personal.length>0) {
+					for (var i = 0; i < data.personal.length; i++) {
+						$('#tablecaja').append('<tr><td style="text-align:left;padding-left:10px">'+parseInt(i+1)+'. '+data.personal[i].nombre+' '+data.personal[i].apellido+'</td></tr>');
+					}
+				}else {
+					$("#alert_empty_caja").show();
+				}
+				id_caja_p=data.id;
+			}
+		});
+	}
+	function pdfclick(){
+	     window.open('/Caja/printpdf/exec?tabla='+table_p+'&id_caja='+id_caja_p, '_blank');
 	}
 
 </script>
